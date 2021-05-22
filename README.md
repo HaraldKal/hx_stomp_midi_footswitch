@@ -16,6 +16,7 @@ The brain of the pedal is a (cheap copy) Arduino Nano. I chose this because it c
 
 
 
+
 ### BOM ###
 
 For creating this pedal you need the following parts
@@ -32,6 +33,6 @@ These people helped, in some way or other, me to complete the project.
 
 Thanks to Erikson Silva for inspiring me to build my own midi footswitch and recommending a suitable debounce time of 20ms for the footswitches based on extensive testing that he did prior to me starting this project. This saved me hours of testing.
 
-Thanks to the Hacker Shack YouTube channel for recommending the usage of the Arduino library Bounce2 for reducing noise when pressing the footswitches. The video can be seen [here](https://www.youtube.com/watch?v=M25I58I7BtI)
+Thanks to the Hacker Shack YouTube channel for recommending the usage of the [Bounce2](https://github.com/thomasfredericks/Bounce2) library for Arduino. It reduces noise when pressing the footswitches and makes the pedal more reliable. The video can be seen [here](https://www.youtube.com/watch?v=M25I58I7BtI)
 
 Thanks to Jason Sadites for sharing a video on YouTube, explaining how to send midi messages to the Line 6 HX Stomp. In the video he explains how to (using only one footswitch) activate the Tuner and send Tap Tempo messages. Although the video was a instructional video for the Morningstar MC6 MkII, this gave me the idea to find a way to do this with the Arduino Nano by having the code read footswitch presses as a regular press and long press. The video can be seen [here](https://www.youtube.com/watch?v=en8YLGcwuPc)
