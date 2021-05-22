@@ -8,6 +8,8 @@ This is my implementation for a midi pedal to switch between footswitch modes on
 It features two DC power connectors for accepting a 9volt power supply. That voltage can be forwarded to the HX Stomp using a DC patch cable, thus removing the need for a separate power supply.
 The brain of the pedal is a (cheap copy) Arduino Nano. I chose this because it can receive voltages between 7-12 volts and would suffice for this project. It also outputs 5 volt that is needed for sending Midi messages to the HX Stomp.
 
+
+
 ### BOM ###
 
 For creating this pedal you need the following parts
