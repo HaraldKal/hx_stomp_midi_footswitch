@@ -4,12 +4,13 @@
 
 ### Introduction ###
 
-While the HX Stomp is a great amp modeler for guitar and bass players, it only has 3 buttons and the usage of an expression pedal limits the possibilities of adding more footswitches. I looked at products that might be a solution but found them to either be expensive or having too many buttons. Based upon my own personal needs I decided build my own a midi footswitch to extend usability of the HX Stomp. This repository is a way for me to share my findings and explain how I created my DIY midi footswitch using off-the-shelf components. The libraries used (and needed) for the Arduino Nano are the [Midi library](https://github.com/FortySevenEffects/arduino_midi_library) and [Bounce2](https://github.com/thomasfredericks/Bounce2). Both can be installed using the Arduino IDE.
+While the HX Stomp is a great amp modeler for guitar and bass players, it only has 3 buttons and the usage of an expression pedal limits the possibilities of adding more footswitches. 
+I wanted the ability to change presets but still be able to activate/deactivate multiple effects using Snapshot Mode. This cannot be achieved unless you physically change the mode using the buttons on the HX Stomp. Reading the manual, I understood that a footswitch could solve this. I looked at products that might be a solution but found them to either be expensive or having too many buttons. Based upon my own personal needs for a powerful and small midi pedal, I decided build my own a midi pedal to extend usability of the HX Stomp. This repository is a way for me to share my findings and explain how I created my DIY midi footswitch using off-the-shelf components. The libraries used (and needed) for the Arduino Nano are the [Midi library](https://github.com/FortySevenEffects/arduino_midi_library) and [Bounce2](https://github.com/thomasfredericks/Bounce2). Both can be installed using the Arduino IDE.
 
 ### The Pedal & Features ###
 
 The midi footswitch uses a (cheap copy) Arduino Nano as the main unit for reading footswitch presses and sending corresponding midi messages to the HX Stomp. On top of the pedal there are two footswitches. The top footswitch acts as a latching switch (despite being momentary) changing the footswitch mode on the HX Stomp between **Scroll Mode** and **Snapshot Mode**.
-It features two DC power connectors for accepting the stock 9volt power supply for the HX Stomp. This provides the Arduino Nano with voltage and that voltage is  forwarded to the HX Stomp using a DC patch cable. This removes the need for a separate power supply.
+It features two DC power connectors. The first DC socket is for accepting the stock 9volt power supply included with the HX Stomp. This provides the Arduino Nano with power. The second DC socket is used for forwarding 9 volts to the HX Stomp using a DC patch cable. This removes the need for a separate power supply.
 While the pedal is set to only send certain midi messages, there is nothing stopping you from changing this and have it do whatever you want.
 
 ### The Logic ###
