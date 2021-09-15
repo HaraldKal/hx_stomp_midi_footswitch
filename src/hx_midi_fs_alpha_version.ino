@@ -138,9 +138,13 @@ void setup() {
   MIDI.begin(MIDI_CHANNEL_OFF); // MIDI_CHANNEL_OFF means we are not listening to incomming MIDI
 }
 
+
+/*--------------------------------------------------------------------
+ |  main loop
+ *-------------------------------------------------------------------*/
 void loop() {
-  //pause:
-  
+
+  // taking the currenTime in milliseconds
   currentTime = millis();
 
   if (checkTime) {
@@ -160,23 +164,22 @@ void loop() {
   footSwitch2.update();
 
   
-  /* this is when footSwitch1 is pressed */
+  /* if footSwitch1 is pressed */
   if (footSwitch1.fallingEdge()) {
     updateRelay();  
   }
 
-/* this is when footSwitch1 is released */
+  /* if footSwitch1 is released */
   if (footSwitch1.risingEdge()) {
-    // TURN NOTE OFF
     //Serial.println("Button 1 released!");
     setFootswitchMode();
   }
 
-  /* this is when footSwitch2 is pressed */
+  /* if footSwitch2 is pressed */
   if (footSwitch2.fallingEdge()) {
     //Serial.println("Button 2 pressed!");
     pressedTime = millis();
-    //sendTapTempo();
+
     if(tunerActive) {
       deactivateTuner();
       tunerActive = false;
@@ -185,7 +188,7 @@ void loop() {
     }
   }
 
-/* this is when footSwitch1 is released */
+  /* if footSwitch2 is released */
   if (footSwitch2.risingEdge()) {
     if (!tunerActive && checkTime) {
       footSwitch2Released = true;
