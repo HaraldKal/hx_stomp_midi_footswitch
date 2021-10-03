@@ -29,7 +29,7 @@ For creating this pedal you need the following parts
 * 2 x DC Power Connector (Barrel Plug)
 * 1 x 5 pin DIN Socket (MIDI)
 
-### Credits & Thanks###
+### Credits & Thanks ###
 
 These people helped, in some way or other, me to complete the project.
 
