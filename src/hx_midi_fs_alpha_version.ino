@@ -191,12 +191,12 @@ void loop() {
       //Serial.println("FS2 released");
 
       // checking for long press (NOT USED)
-      //if (footSwitch2.previousDuration() > 1500) {
+      //if (footSwitch2.previousDuration() > LONG_PRESS_TIME) {
       //  Serial.println("FS2 was long pressed");
       //}
 
       // checking for short press
-      if (footSwitch2.previousDuration() < 1500) {
+      if (footSwitch2.previousDuration() < LONG_PRESS_TIME) {
         //Serial.println("FS2 was short pressed");
 
         // if the tuner is not activated
