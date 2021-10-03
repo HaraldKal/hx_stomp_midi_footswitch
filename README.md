@@ -29,9 +29,11 @@ For creating this pedal you need the following parts
 * 2 x DC Power Connector (Barrel Plug)
 * 1 x 5 pin DIN Socket (MIDI)
 
+The latest version of [Midi library](https://github.com/FortySevenEffects/arduino_midi_library) and [Bounce2](https://github.com/thomasfredericks/Bounce2)
+
 ### Credits & Thanks ###
 
-These people helped, in some way or other, me to complete the project.
+These people helped me, in some way or other, to complete the project.
 
 Thanks to Erikson Silva for inspiring me to build my own midi footswitch and recommending a suitable debounce time of 20ms for the footswitches based on extensive testing that he did prior to me starting this project. This saved me hours of testing.
 
