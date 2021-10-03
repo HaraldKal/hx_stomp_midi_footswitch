@@ -131,7 +131,9 @@ void sendTapTempo() {
  |  setup
  *-------------------------------------------------------------------*/
 void setup() {
-  //Serial.begin(115200); // for debugging
+  // Use Serial for debugging/testing code
+  // don't forget to comment out the midi messages being sent if it clashes with your serial port!
+  //Serial.begin(115200);
 
   footSwitch1.attach(FS1_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
   footSwitch2.attach(FS2_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
