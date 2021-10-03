@@ -1,6 +1,3 @@
-#include <Bounce2.h>
-#include <MIDI.h>
-
 /*--------------------------------------------------------------------
  |  DEFINES
  *-------------------------------------------------------------------*/
@@ -20,14 +17,17 @@
 
 
 /*--------------------------------------------------------------------
+ |  INCLUDES
+ *-------------------------------------------------------------------*/
+#include <Bounce2.h>
+#include <MIDI.h>
+
+
+/*--------------------------------------------------------------------
  |  VARIABLES
  *-------------------------------------------------------------------*/
-int relay = 0;                          // int relay variable. Defaults at 0 but (should) never exceed 1
-boolean checkTime = false;              // boolean 
-boolean tunerActive = false;            // boolean for checking if the tuner on the HX Stomp is active
-boolean footSwitch2Released = false;    // boolean for setting true/false if the footswitch is released
-unsigned long pressedTime = 0;          // variable for comparing time (longpress of a footswitch)
-unsigned long currentTime = 0;          // variable for comparing time
+int latchRelay = 0;                     // int relay variable. Defaults at 0 but (should) never exceed 1
+boolean tunerIsActivated = false;       // boolean for checking if the tuner on the HX Stomp is active
 
 
 /*--------------------------------------------------------------------
@@ -61,30 +61,23 @@ MIDI_CREATE_DEFAULT_INSTANCE();
  *  updateRelay()
  *  This function is needed for turning the momentary footswitch into
  *  behaving like a latching switch. It's basically adding + 1 to 
- *  whatever value relay has.
+ *  whatever value latchRelay has.
  *  I'm using a modulus value so that the value never exceeds 1.
- *  This should mean that the relay variable is always a value between
+ *  This should mean that the latchRelay variable is always a value between
  *  0 and 1. This behaves like a on-off or true-false.
  *  This function gets called when the footSwitch1 is pressed.
  */
 void updateRelay() {
-  relay = (relay + 1) % MOD_VALUE;  // changes the value of relay between 0 and 1
+  latchRelay = (latchRelay + 1) % MOD_VALUE;  // changes the value of relay between 0 and 1
 }
 
-
-// ==================================================
-// Function for switching between footswitch modes
-// It uses a switch case and the relay variable to 
-// switch between preset and snapshot mode.
-// in any case of error it defaults to preset mode.
-// ==================================================
 
 /**
  *  setFootSwitchMode()
  *  This function gets called when footSwitch1 is released.
  */
 void setFootswitchMode() {
-  switch(relay) {
+  switch(latchRelay) {
     case 0: // if relay value is 0, it should set the footswitch mode to preset
       //Serial.println("Footswitch mode set to preset!");
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SCROLL, MIDI_CHANNEL);
@@ -94,12 +87,13 @@ void setFootswitchMode() {
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SNAPSHOT, MIDI_CHANNEL);
       break;
     default:  // in case anything goes wrong, set the relay to 0
-      relay = 0;
+      latchRelay = 0;
       //Serial.println("ERROR reading relay value: Set the footswitch mode to preset!");
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SCROLL, MIDI_CHANNEL);
       break;
   }
 }
+
 
 /**
  *  activateTuner()
@@ -107,8 +101,10 @@ void setFootswitchMode() {
  *  value of 127. This turns on the tuner on the HX Stomp.
  */
 void activateTuner() {
-  MIDI.sendControlChange(TUNER_CC,TUNER_VALUE, MIDI_CHANNEL);
-}
+    //Serial.println("Activacting the Tuner!");
+    MIDI.sendControlChange(TUNER_CC,TUNER_VALUE, MIDI_CHANNEL);
+  }
+
 
 /**
  *  deactivateTuner()
@@ -116,26 +112,26 @@ void activateTuner() {
  *  name to make the code more readable.
  */
 void deactivateTuner() {
+  //Serial.println("Deactivating the Tuner!");
   MIDI.sendControlChange(TUNER_CC,TUNER_VALUE, MIDI_CHANNEL);
 }
+
 
 /**
  *  sendTapTempo()
  *  This function is for sending a Tap Tempo CC message with a fixed value
  */
 void sendTapTempo() {
+  //Serial.println("Sending Tap Tempo");
   MIDI.sendControlChange(TAP_TEMPO_CC,TAP_TEMPO_VALUE, MIDI_CHANNEL);
 }
-
 
 
 /*--------------------------------------------------------------------
  |  setup
  *-------------------------------------------------------------------*/
 void setup() {
-  /* setting the pinMode on the pins for the footswitches */
-  //pinMode(A0, INPUT_PULLUP);
-  //pinMode(A1, INPUT_PULLUP);
+  //Serial.begin(115200); // for debugging
 
   footSwitch1.attach(FS1_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
   footSwitch2.attach(FS2_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
@@ -152,32 +148,68 @@ void setup() {
  *-------------------------------------------------------------------*/
 void loop() {
 
+  // update state of footswitches
   footSwitch1.update();
   footSwitch2.update();
 
+  //===============================
+  // FOOTSWITCH 1
+  //===============================
   if (footSwitch1.changed()) {
-    if (footSwitch1.read() == HIGH) {
+    // store footswitch state
+    int fs1State = footSwitch1.read();
+
+    if (fs1State == LOW) {
+      //Serial.println("FS1 pressed");
       updateRelay();
     }
 
-    if (footSwitch1.read() == LOW) {
+    if (fs1State == HIGH) {
+      //Serial.println("FS1 released");
       setFootswitchMode();
     }
   }
 
-  if (footSwitch2.changed()) {
-    if (footSwitch2.read() == HIGH) {
-      if (footSwitch2.previousDuration() > 1500) {
-        activateTuner();
-        tunerActive = true;
-      } else {
-        tunerActive = false;
-      }
-    }
 
-    if (footSwitch2.read() == LOW) {
-      if (!tunerActive) {
-        sendTapTempo();
+  //===============================
+  // FOOTSWITCH 2
+  //===============================
+
+  // if detecting a long press
+  // activate the tuner
+  if (footSwitch2.read() == LOW && footSwitch2.currentDuration() > LONG_PRESS_TIME) {
+    if (!tunerIsActivated) {
+      activateTuner();
+      tunerIsActivated = true;
+    }
+  }
+
+  if (footSwitch2.changed()) {
+    int fs2State = footSwitch2.read();
+   
+    if (fs2State == HIGH) {
+      //Serial.println("FS2 released");
+
+      // checking for long press (NOT USED)
+      //if (footSwitch2.previousDuration() > 1500) {
+      //  Serial.println("FS2 was long pressed");
+      //}
+
+      // checking for short press
+      if (footSwitch2.previousDuration() < 1500) {
+        //Serial.println("FS2 was short pressed");
+
+        // if the tuner is not activated
+        if (!tunerIsActivated) {
+          sendTapTempo(); // send the tap tempo
+        }
+
+        // if the tuner was activated
+        if (tunerIsActivated) {
+          // turn it off
+          deactivateTuner();
+          tunerIsActivated = false;
+        }
       }
     }
   }
