@@ -4,6 +4,8 @@
 /*--------------------------------------------------------------------
  |  DEFINES
  *-------------------------------------------------------------------*/
+#define FS1_PIN A0            // Pin for footswitch1
+#define FS2_PIN A1            // Pin for footswitch2
 #define DEBOUNCE_TIME 20      // 20 ms debounce time
 #define MOD_VALUE 2           // Modulus value
 #define FOOTSWITCH_MODE_CC 71 // Footswitch mode CC for the Line 6 HX Stomp
@@ -31,8 +33,8 @@ unsigned long currentTime = 0;          // variable for comparing time
 /*--------------------------------------------------------------------
  |  FOOTSWITCHES
  *-------------------------------------------------------------------*/
-Bounce footSwitch1 = Bounce(A0, DEBOUNCE_TIME);
-Bounce footSwitch2 = Bounce(A1, DEBOUNCE_TIME);
+Bounce footSwitch1 = Bounce();
+Bounce footSwitch2 = Bounce();
 
 
 /*--------------------------------------------------------------------
@@ -132,8 +134,14 @@ void sendTapTempo() {
  *-------------------------------------------------------------------*/
 void setup() {
   /* setting the pinMode on the pins for the footswitches */
-  pinMode(A0, INPUT_PULLUP);
-  pinMode(A1, INPUT_PULLUP);
+  //pinMode(A0, INPUT_PULLUP);
+  //pinMode(A1, INPUT_PULLUP);
+
+  footSwitch1.attach(FS1_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
+  footSwitch2.attach(FS2_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
+
+  footSwitch1.interval(DEBOUNCE_TIME);  // Use a debounce interval of 20 milliseconds
+  footSwitch2.interval(DEBOUNCE_TIME);  // Use a debounce interval of 20 milliseconds
 
   MIDI.begin(MIDI_CHANNEL_OFF); // MIDI_CHANNEL_OFF means we are not listening to incomming MIDI
 }
@@ -144,55 +152,33 @@ void setup() {
  *-------------------------------------------------------------------*/
 void loop() {
 
-  // taking the currenTime in milliseconds
-  currentTime = millis();
-
-  if (checkTime) {
-    if (currentTime - pressedTime > LONG_PRESS_TIME) {
-      tunerActive = true;
-      activateTuner();
-      checkTime = false;
-    }
-  }
-
-  if (footSwitch2Released) {
-    sendTapTempo();
-    footSwitch2Released = false;
-  }
-
   footSwitch1.update();
   footSwitch2.update();
 
-  
-  /* if footSwitch1 is pressed */
-  if (footSwitch1.fallingEdge()) {
-    updateRelay();  
-  }
+  if (footSwitch1.changed()) {
+    if (footSwitch1.read() == HIGH) {
+      updateRelay();
+    }
 
-  /* if footSwitch1 is released */
-  if (footSwitch1.risingEdge()) {
-    //Serial.println("Button 1 released!");
-    setFootswitchMode();
-  }
-
-  /* if footSwitch2 is pressed */
-  if (footSwitch2.fallingEdge()) {
-    //Serial.println("Button 2 pressed!");
-    pressedTime = millis();
-
-    if(tunerActive) {
-      deactivateTuner();
-      tunerActive = false;
-    } else {
-      checkTime = true;
+    if (footSwitch1.read() == LOW) {
+      setFootswitchMode();
     }
   }
 
-  /* if footSwitch2 is released */
-  if (footSwitch2.risingEdge()) {
-    if (!tunerActive && checkTime) {
-      footSwitch2Released = true;
-      checkTime = false;
+  if (footSwitch2.changed()) {
+    if (footSwitch2.read() == HIGH) {
+      if (footSwitch2.previousDuration() > 1500) {
+        activateTuner();
+        tunerActive = true;
+      } else {
+        tunerActive = false;
+      }
+    }
+
+    if (footSwitch2.read() == LOW) {
+      if (!tunerActive) {
+        sendTapTempo();
+      }
     }
   }
 }
