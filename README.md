@@ -10,11 +10,12 @@ I wanted the ability to change presets but still be able to activate/deactivate 
 ### The Pedal & Features ###
 
 The midi footswitch uses a (cheap copy) Arduino Nano as the main unit for reading footswitch presses and sending corresponding midi messages to the HX Stomp. On top of the pedal there are two footswitches. The top footswitch acts as a latching switch (despite being momentary) changing the footswitch mode on the HX Stomp between **Scroll Mode** and **Snapshot Mode**.
-It features two DC power connectors. The first DC socket is for accepting the stock 9volt power supply included with the HX Stomp. This provides the Arduino Nano with power. The second DC socket is used for forwarding 9 volts to the HX Stomp using a DC patch cable. This removes the need for a separate power supply.
+It features two DC power connectors. The first DC socket is for accepting the stock 9volt power supply included with the HX Stomp. This provides the Arduino Nano with voltage. The second DC socket is used for forwarding 9 volts to the HX Stomp using a DC patch cable. This removes the need for a separate power supply.
 While the pedal is set to only send certain midi messages, there is nothing stopping you from changing this and have it do whatever you want.
 
 ### The Logic ###
 
+TODO
 
 
 
@@ -28,12 +29,12 @@ For creating this pedal you need the following parts
 * 2 x DC Power Connector (Barrel Plug)
 * 1 x 5 pin DIN Socket (MIDI)
 
-### Credits ###
+### Credits & Thanks###
 
 These people helped, in some way or other, me to complete the project.
 
 Thanks to Erikson Silva for inspiring me to build my own midi footswitch and recommending a suitable debounce time of 20ms for the footswitches based on extensive testing that he did prior to me starting this project. This saved me hours of testing.
 
-Thanks to the Hacker Shack YouTube channel for recommending the usage of the [Bounce2](https://github.com/thomasfredericks/Bounce2) library for Arduino. It reduces noise when pressing the footswitches and makes the pedal more reliable. The video can be seen [here](https://www.youtube.com/watch?v=M25I58I7BtI)
+Thanks to the Hacker Shack YouTube channel for recommending the usage of the [Bounce2](https://github.com/thomasfredericks/Bounce2) library for Arduino. It reduces the issues of the noise when pressing the footswitches and makes the pedal more reliable. The video can be seen [here](https://www.youtube.com/watch?v=M25I58I7BtI)
 
-Thanks to Jason Sadites for sharing a video on YouTube, explaining how to send midi messages to the Line 6 HX Stomp. In the video he explains how to (using only one footswitch) activate the Tuner and send Tap Tempo messages. Although the video was a instructional video for the Morningstar MC6 MkII, this gave me the idea to find a way to do this with the Arduino Nano by having the code read footswitch presses as a regular press and long press. The video can be seen [here](https://www.youtube.com/watch?v=en8YLGcwuPc)
+Thanks to Jason Sadites for sharing a video on YouTube, explaining how to send midi messages to the Line 6 HX Stomp. In the video he explains how to (using only one footswitch) activate the Tuner and send Tap Tempo messages. Although the video was a instructional video for the Morningstar MC6 MkII, this gave me the idea to implement my way to do this with the Arduino Nano. This was done by having the code read footswitch presses as a regular press and long press. The video can be seen [here](https://www.youtube.com/watch?v=en8YLGcwuPc)
