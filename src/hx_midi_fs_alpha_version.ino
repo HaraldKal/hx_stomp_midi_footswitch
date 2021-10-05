@@ -4,10 +4,14 @@
 #define FS1_PIN A0            // Pin for footswitch1
 #define FS2_PIN A1            // Pin for footswitch2
 #define DEBOUNCE_TIME 20      // 20 ms debounce time
-#define MOD_VALUE 2           // Modulus value
+#define MOD_VALUE 3           // Modulus value
 #define FOOTSWITCH_MODE_CC 71 // Footswitch mode CC for the Line 6 HX Stomp
-#define MODE_SCROLL 1         // The value for the CC message (preset mode)
+#define MODE_STOMP 0          // The value for the CC message (stomp mode)
+#define MODE_SCROLL 1         // The value for the CC message (scroll mode)
+#define MODE_PRESET 2         // The value for the CC message (preset mode)
 #define MODE_SNAPSHOT 3       // the value for the CC message (snapshot mode)
+#define MODE_NEXT 4           // The value for the CC message (next mode)
+#define MODE_PREVIOUS 5       // The value for the CC message (previous mode)
 #define TAP_TEMPO_CC 64       // Tap Tempo CC for the Line 6 HX Stomp
 #define TAP_TEMPO_VALUE 100   // The value for the Tap Tempo CC message
 #define TUNER_CC 68           // Tuner CC for the Line 6 HX Stomp
@@ -26,8 +30,8 @@
 /*--------------------------------------------------------------------
  |  VARIABLES
  *-------------------------------------------------------------------*/
-int latchRelay = 0;                     // int relay variable. Defaults at 0 but (should) never exceed 1
-boolean tunerIsActivated = false;       // boolean for checking if the tuner on the HX Stomp is active
+int footswitchMode = 0;                 // for selecting footswitch mode on the HX Stomp
+boolean tunerIsActivated = false;       // for checking if the tuner on the HX Stomp is active
 
 
 /*--------------------------------------------------------------------
@@ -47,7 +51,7 @@ Bounce footSwitch2 = Bounce();
  |
  |    MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
  |
- |  I have not tested this so I I need to test this further on other 
+ |  I have not tested this so I need to test this further on other 
  |  Arduino boards as well
  *-------------------------------------------------------------------*/
 MIDI_CREATE_DEFAULT_INSTANCE();         
@@ -56,44 +60,49 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 /*--------------------------------------------------------------------
  |  FUNCTIONS
  *-------------------------------------------------------------------*/
- 
-/**
- *  updateRelay()
- *  This function is needed for turning the momentary footswitch into
- *  behaving like a latching switch. It's basically adding + 1 to 
- *  whatever value latchRelay has.
- *  I'm using a modulus value so that the value never exceeds 1.
- *  This should mean that the latchRelay variable is always a value between
- *  0 and 1. This behaves like a on-off or true-false.
- *  This function gets called when the footSwitch1 is pressed.
- */
-void updateRelay() {
-  latchRelay = (latchRelay + 1) % MOD_VALUE;  // changes the value of relay between 0 and 1
-}
 
-
-/**
+ /**
  *  setFootSwitchMode()
  *  This function gets called when footSwitch1 is released.
+ *  It basically sets a variable to three possible values: 0, 1 and 2.
+ *  This is needed later on to set the necessary footswitch mode of the HX Stomp.
  */
 void setFootswitchMode() {
-  switch(latchRelay) {
-    case 0: // if relay value is 0, it should set the footswitch mode to preset
-      //Serial.println("Footswitch mode set to preset!");
+  //Serial.println("setting footswitch mode");
+  footswitchMode = (footswitchMode + 1) % MOD_VALUE;  // 0, 1, 2
+}
+
+/**
+ *  updateHxFootswitchMode()
+ *  This function is for updating the footswitch mode on the HX Stomp.
+ *  I'm only changing between scroll, stomp and snapshot mode but you could
+ *  go through all 4 modes if you wanted to.
+ *  This function gets called when the footSwitch1 is released.
+ */
+void updateHxFootswitchMode() {
+  switch(footswitchMode) {
+    case 0: // SCROLL MODE
+      //Serial.println("Footswitch mode set to scroll!");
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SCROLL, MIDI_CHANNEL);
       break;
-    case 1: // if the relay value is 1, it should set the footswitch mode to snapshot
+      
+    case 1: // STOMP MODE
+      //Serial.println("Footswitch mode set to stomp");
+      MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_STOMP, MIDI_CHANNEL);
+      break;
+      
+    case 2: // SNAPSHOT MODE
       //Serial.println("Footswitch mode set to snapshot!");
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SNAPSHOT, MIDI_CHANNEL);
       break;
-    default:  // in case anything goes wrong, set the relay to 0
-      latchRelay = 0;
-      //Serial.println("ERROR reading relay value: Set the footswitch mode to preset!");
+      
+    default:  // in case anything goes wrong
+      footswitchMode = 0;
+      //Serial.println("ERROR reading relay value: Set the footswitch mode to Scroll!");
       MIDI.sendControlChange(FOOTSWITCH_MODE_CC,MODE_SCROLL, MIDI_CHANNEL);
       break;
   }
 }
-
 
 /**
  *  activateTuner()
@@ -131,9 +140,7 @@ void sendTapTempo() {
  |  setup
  *-------------------------------------------------------------------*/
 void setup() {
-  // Use Serial for debugging/testing code
-  // don't forget to comment out the midi messages being sent if it clashes with your serial port!
-  //Serial.begin(115200);
+  //Serial.begin(115200); // for debugging
 
   footSwitch1.attach(FS1_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
   footSwitch2.attach(FS2_PIN, INPUT_PULLUP);  // attach the debouncer to pin with INPUT_PULLUP mode
@@ -158,17 +165,15 @@ void loop() {
   // FOOTSWITCH 1
   //===============================
   if (footSwitch1.changed()) {
-    // store footswitch state
-    int fs1State = footSwitch1.read();
-
-    if (fs1State == LOW) {
+    
+    if (footSwitch1.read() == LOW) {
       //Serial.println("FS1 pressed");
-      updateRelay();
+      setFootswitchMode();
     }
 
-    if (fs1State == HIGH) {
+    if (footSwitch1.read() == HIGH) {
       //Serial.println("FS1 released");
-      setFootswitchMode();
+      updateHxFootswitchMode();
     }
   }
 
@@ -179,26 +184,28 @@ void loop() {
 
   // if detecting a long press
   // activate the tuner
-  if (footSwitch2.read() == LOW && footSwitch2.currentDuration() > LONG_PRESS_TIME) {
+  if (footSwitch2.read() == LOW && footSwitch2.currentDuration() >= LONG_PRESS_TIME) {
     if (!tunerIsActivated) {
       activateTuner();
       tunerIsActivated = true;
     }
   }
 
+  // using the changed() function makes sure that the code here is only run
+  // once when a change of state has been detected.
   if (footSwitch2.changed()) {
-    int fs2State = footSwitch2.read();
    
-    if (fs2State == HIGH) {
+    if (footSwitch2.read() == HIGH) {
       //Serial.println("FS2 released");
 
-      // checking for long press (NOT USED)
-      //if (footSwitch2.previousDuration() > LONG_PRESS_TIME) {
+      // NOT USED BUT KEPT TO SHOW EXAMPLE
+      // checking for long press
+      //if (footSwitch2.previousDuration() > 1500) {
       //  Serial.println("FS2 was long pressed");
       //}
 
       // checking for short press
-      if (footSwitch2.previousDuration() < LONG_PRESS_TIME) {
+      if (footSwitch2.previousDuration() < 1500) {
         //Serial.println("FS2 was short pressed");
 
         // if the tuner is not activated
