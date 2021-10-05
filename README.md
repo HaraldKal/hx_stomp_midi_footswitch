@@ -1,5 +1,7 @@
 # HX Stomp Midi Footswitch #
 
+![](https://user-images.githubusercontent.com/84625283/136017059-c77f75ea-da17-4e0d-be7f-05242f38987f.png)
+
 ## Building a DIY Midi footswitch pedal for the Line 6 HX Stomp ##
 
 ### Introduction ###
@@ -26,6 +28,7 @@ For creating this pedal you need the following parts
 * 2 x SPST Momentary Footswitch
 * 1 x Pedal Enclosure (1590B or 1590BB)
 * 1 x Arduino Nano v3
+
 * 2 x DC Power Connector (Barrel Plug)
 * 1 x 5 pin DIN Socket (MIDI)
 
