@@ -1,6 +1,7 @@
 # HX Stomp Midi Footswitch #
-
-![](https://user-images.githubusercontent.com/84625283/136017059-c77f75ea-da17-4e0d-be7f-05242f38987f.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/84625283/136017059-c77f75ea-da17-4e0d-be7f-05242f38987f.png?raw=true" alt="Sublime's custom image"/>
+ </p>
 
 ## Building a DIY Midi footswitch pedal for the Line 6 HX Stomp ##
 
