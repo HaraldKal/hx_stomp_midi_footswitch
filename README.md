@@ -16,11 +16,6 @@ The midi footswitch uses a (cheap copy) Arduino Nano as the main unit for readin
 It features two DC power connectors. The first DC socket is for accepting the stock 9volt power supply included with the HX Stomp. This provides the Arduino Nano with voltage. The second DC socket is used for forwarding 9 volts to the HX Stomp using a DC patch cable. This removes the need for a separate power supply.
 While the pedal is set to only send certain midi messages, there is nothing stopping you from changing this and have it do whatever you want.
 
-### The Logic ###
-
-TODO
-
-
 
 ### BOM ###
 
