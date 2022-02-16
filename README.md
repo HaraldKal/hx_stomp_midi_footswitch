@@ -29,8 +29,7 @@ For creating this pedal you need the following parts
 * 1 x 5 pin DIN Socket (MIDI)
 * 2 x 220 Ohm Resistor
 
-The latest version of [Midi library](https://github.com/FortySevenEffects/arduino_midi_library) and [Bounce2](https://github.com/thomasfredericks/Bounce2)
-As of writing this, the latest version of Bounce2 has to be manually installed.
+The latest version of [Midi library](https://github.com/FortySevenEffects/arduino_midi_library) and [Bounce2](https://github.com/thomasfredericks/Bounce2) (As of writing this, the latest version of Bounce2 has to be manually installed)
 
 ### Credits & Thanks ###
 
